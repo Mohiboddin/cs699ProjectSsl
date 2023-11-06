@@ -3,6 +3,8 @@ from app.db import connect_db, db_close
 from datetime import datetime
 from flask_mail import Mail, Message
 import bcrypt
+import ssl
+import socket
 
 
 
@@ -11,7 +13,7 @@ def certificateInfo(userId):
         con = connect_db()
         cur = con.cursor()
         sql = """
-            SELECT url, created_at, updated_at, expire_mail_day, expire_date, status, problem_occurred
+            SELECT url, created_at, updated_at, expire_mail_day, expire_date, status, problem_occurred, id
             FROM certificate_info
             WHERE created_by = %s
         """
@@ -22,3 +24,55 @@ def certificateInfo(userId):
     except Exception as e:
         print("An error occurred:", str(e))
         return None
+
+def create_certificate_info(url, expire_mail_day, created_by, expire_date, status, problem_occurred):
+    con = connect_db()
+    cur = con.cursor()
+    sql = "INSERT INTO certificate_info (url, expire_mail_day, created_by, expire_date, status, problem_occurred) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id"
+    cur.execute(sql, (url, expire_mail_day, created_by, expire_date, status, problem_occurred))
+    certificate_id = cur.fetchone()[0]
+    db_close(cur, con)
+    return certificate_id
+
+def update_certificate_info(id, expire_mail_day, expire_date, status, problem_occurred):
+    con = connect_db()
+    cur = con.cursor()
+    sql = "UPDATE certificate_info SET expire_mail_day = %s, expire_date = %s, status = %s, problem_occurred = %s WHERE id = %s"
+    cur.execute(sql, (expire_mail_day, expire_date, status, problem_occurred, id))
+    success = cur.rowcount > 0
+    db_close(cur, con)
+    return success
+
+def delete_certificate_info(id, created_by):
+    con = connect_db()
+    cur = con.cursor()
+    sql = "DELETE FROM certificate_info WHERE id = %s and created_by=%s"
+    cur.execute(sql, (id,created_by))
+    success = cur.rowcount > 0
+    db_close(cur, con)
+    return success
+
+
+def urlAlreadyExist(url, email):
+    con = connect_db()
+    cur = con.cursor()
+    sql = "select url from certificate_info where url=%s and created_by=%s"
+    cur.execute(sql, (url, email))
+    success = cur.rowcount > 0
+    db_close(cur, con)
+    return success
+
+
+def get_ssl_certificate_expiration(url):
+    try:
+        context = ssl.create_default_context()
+        conn = context.wrap_socket(socket.socket(socket.AF_INET), server_hostname=url)
+        conn.connect((url, 443))
+        cert = conn.getpeercert()
+        not_after = cert['notAfter']
+        print(not_after)
+        return not_after        
+    except (ssl.SSLError, socket.error, KeyError):
+        print("invalid url")
+        return None
+    

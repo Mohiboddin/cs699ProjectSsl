@@ -45,46 +45,10 @@ def schedulerScriptFunc2():
             print ("URL problem")
             notifications.append({'email':row['email'], 'url':row['url'], 'notificationCode':2, 'notificationMsg':"can't able to acess the certificate." })
 
-    updateDatabaseTask=sendEmailFunc(notifications)
-    updateDatabaseOperation()
-
-def updateDatabaseOperation(updateDatabaseTask):
-    for row in updateDatabaseTask:
-        if row['code']==1:
-            try:
-                conn = connect_db()
-                cursor = conn.cursor()
-                sql = """
-                INSERT INTO notification (email, url, message) VALUES
-                    (%s, %s, %s);
-                """
-                cursor.execute(sql, (row['email'],row['url'],row['msg'],))
-                sql = """UPDATE certificate_info SET problem_occured = TRUE WHERE url=%s AND email=%s;"""
-                cursor.execute(sql, (row['url'],row['email'],))
-                db_close(cursor, conn)
-                return
-            except Exception as e:
-                print("An error occurred:", str(e))
-                return None
-        elif row['code']==1:
-            try:
-                conn = connect_db()
-                cursor = conn.cursor()
-                sql = """
-                
-                """
-                cursor.execute(sql)
-                db_close(cursor, conn)
-                return
-            except Exception as e:
-                print("An error occurred:", str(e))
-                return None
-            
-
-
+    sendEmailFunc(notifications)
 
 def sendEmailFunc(notifications):
-    databaseUpdate=[]
+    print(notifications)
     for row in notifications:
         #send expiry email.
         if row['notificationCode']==1:
@@ -97,11 +61,11 @@ def sendEmailFunc(notifications):
                 msg=Message('SSL Alert', sender='mohibs2001@gmail.com', recipients=[email])
                 msg.body= body_text
                 mail.send(msg)
-                databaseUpdate.append({'email': email, 'url':url , 'msg': body_text,'code': 1})
-                return "Message Sent"
+                #databse add msg
+                addMsg(body_text, email, url)
             except smtplib.SMTPException as e:
-                databaseUpdate.append({'email': email, 'url':url , 'msg': 'cant sent Expiration email on given Email ID','code': 3})
-                return f"Message not sent. Error: {str(e)}"
+                #databse add msg
+                addMsg('cant sent Expiration email on given Email ID', email, url)
         #cant access certificate email
         if row['notificationCode']==2:
             try:
@@ -112,12 +76,11 @@ def sendEmailFunc(notifications):
                 msg=Message('SSL Alert', sender='mohibs2001@gmail.com', recipients=[email])
                 msg.body= body_text
                 mail.send(msg)
-                databaseUpdate.append({'email': email, 'url':url , 'msg': body_text,'code': 2})
-                return "Message Sent"
+                updateCertificateInfo(url, email)
+                addMsg('Cant able to access the certificate for URL:', email, url)
             except smtplib.SMTPException as e:
-                databaseUpdate.append({'email': email, 'url':url , 'msg': 'cant sent invalid certificate email on given Email ID','code': 4})
-                return f"Message not sent. Error: {str(e)}"
-    return databaseUpdate
+                updateCertificateInfo(url, email)
+                addMsg('cant sent invalid certificate email on given Email ID', email, url)
 
 
 def get_ssl_certificate_expiration(url):
@@ -169,3 +132,32 @@ def fetchAllWebsite():
         print("An error occurred:", str(e))
         return None
 
+def updateCertificateInfo(url, email):
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        sql = """UPDATE certificate_info SET problem_occured = TRUE WHERE url=%s AND email=%s;"""
+        cursor.execute(sql, (url ,email))
+        db_close(cursor, conn)
+        return
+    except Exception as e:
+        print("An error occurred:", str(e))
+        return None
+
+def addMsg(msg, email, url):
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        sql = """
+        INSERT INTO notification (email, url, message) VALUES
+            (%s, %s, %s);
+        """
+        cursor.execute(sql, (email,url,msg))
+        db_close(cursor, conn)
+        return
+    except Exception as e:
+        print("An error occurred:", str(e))
+        return None
+    
+schedulerScriptFunc2()
+print("completed operation")

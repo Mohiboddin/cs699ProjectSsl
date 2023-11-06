@@ -97,7 +97,7 @@ def verify_otp(email,otp): #done
     print("otp stored", verify_otp)
     return  verify_otp
 
-#whether OTP expired?
+#whether OTP expired? ---No use function
 def verify_otp_expired(email):
     print('in modal to verify otp  ',otp)
     con=connect_db() 
@@ -114,6 +114,66 @@ def send_mail(email, otp): #done
         print('sending email')
         body_text= f'You have now requested for new password, your OTP is {otp}'
         msg=Message('Update Password', sender='utorrentdata1@gmail.com', recipients=[email])
+        msg.body= body_text
+        mail.send(msg)
+        return True
+    except: return False
+#-------------------------------------Signup functions:
+
+#insert the OTP
+def signup_otp(email,otp): #done
+    print('in modal to store otp  ',otp)
+    con=connect_db() 
+    cur = con.cursor()
+    sql= "INSERT INTO public.signupotptable(email, otp) VALUES (%s, %s)"
+    otp_stored=cur.execute(sql,(email,otp))
+    db_close(cur,con)
+    print("otp stored")
+    return otp_stored[0] if otp_stored else None 
+
+#verify otp exist or not
+def signup_verify_otp(email,otp): #done
+    print('in modal to verify otp  ',otp)
+    con=connect_db() 
+    cur = con.cursor()
+    sql= "SELECT otp FROM signupotptable WHERE email=%s AND otp=%s AND expire> %s"
+    cur.execute(sql,(email,otp,datetime.now() ))
+    verify_otp=cur.fetchone()
+    db_close(cur,con)
+    print("otp stored", verify_otp)
+    return  verify_otp
+
+#whther the otp_exist in the otptable with only email, if someone send the request again despite of otp present i database.
+def signup_otp_exist(email):  #done
+    print('in modal to check OTP exist for ',email)
+    con=connect_db() 
+    cur = con.cursor()
+    sql= "SELECT otp from signupotptable WHERE email = %s and expire> %s"
+    cur.execute(sql,(email,datetime.now()))
+    otp_exist=cur.fetchone()
+    db_close(cur,con)
+    return otp_exist[0] if otp_exist else None
+
+def addNewUser(email, username, password):
+    print('In model to create user', email, 'and', password)
+    try:
+        con = connect_db()
+        cur = con.cursor()
+        hashed_password = password_hashing(password)
+        sql= "INSERT INTO public.appuser(email, username, password) VALUES (%s, %s, %s)"
+        userCreated=cur.execute(sql,(email,username,hashed_password))
+        db_close(cur,con)
+        print("userCreated")
+        return userCreated[0] if userCreated else None 
+    except Exception as e:
+        print("An error occurred:", str(e))
+        return None
+
+def new_user_send_mail(email, otp): #done
+    try:
+        print('sending email')
+        body_text= f'You have now requested for New Account, your OTP is {otp}'
+        msg=Message('Welcome to SSL Monitor', sender='utorrentdata1@gmail.com', recipients=[email])
         msg.body= body_text
         mail.send(msg)
         return True

@@ -30,25 +30,25 @@ mail=Mail(app)
 from app.auth import authCon
 from app.dashboard import dashCon
 from app.schedulerDir import schedulerScript
+schedulerScript.schedulerScriptFunc2()
+# scheduler = BackgroundScheduler()
+# x=0
+# def schedulerScriptFunc():
+#     # Get the current date and time
+#     current_datetime = datetime.datetime.now()
+#     global x
+#     print("Hello from main, Current Date and Time:", current_datetime, " ", x)
+#     schedulerScript.schedulerScriptFunc2()
+#     # Get the list of jobs
+#     jobs = scheduler.get_jobs()
+#     x=x+10
+#     # Print the list of jobs
+#     for job in jobs:
+#         print(f"Job ID: {job.id}, Next Run Time: {job.next_run_time}")
 
-scheduler = BackgroundScheduler()
-x=0
-def schedulerScriptFunc():
-    # Get the current date and time
-    current_datetime = datetime.datetime.now()
-    global x
-    print("Hello from main, Current Date and Time:", current_datetime, " ", x)
-    schedulerScript.schedulerScriptFunc2()
-    # Get the list of jobs
-    jobs = scheduler.get_jobs()
-    x=x+10
-    # Print the list of jobs
-    for job in jobs:
-        print(f"Job ID: {job.id}, Next Run Time: {job.next_run_time}")
-
-if not scheduler.running:
-    scheduler.add_job(schedulerScriptFunc, IntervalTrigger(seconds=2))
-    scheduler.start()
+# if not scheduler.running:
+#     scheduler.add_job(schedulerScriptFunc, IntervalTrigger(seconds=2))
+#     scheduler.start()
 
 
 @app.route("/")
@@ -58,4 +58,17 @@ def show_page():
     return "Hello"
     #return render_template('display/show_page.html')
 
+@app.route("/sendemail",  methods=['GET'])
+def send_mail(): #done
+    try:
+        email="mohibs2001@gmail.com"
+        otp=1234
+        print('sending email')
+        body_text= f'You have now requested for new password, your OTP is {otp}'
+        msg=Message('Update Password', sender='mohibs2001@gmail.com', recipients=[email])
+        msg.body= body_text
+        mail.send(msg)
+        return "Message Sent"
+    except smtplib.SMTPException as e:
+        return f"Message not sent. Error: {str(e)}"
     

@@ -16,6 +16,58 @@ def loginRequired(f):
     return wrap
 
 
+@app.route("/signup", methods=["POST", "GET"])
+def signup():
+
+    if request.method == "POST":
+        json_data = request.get_json(force = True)
+        print("printing json data", json_data)
+        username = json_data['username']
+        email = json_data['email']
+        password = json_data['password']
+        if email and password and username:
+            #locate the user
+            userninfo= authMod.verify_email(email)
+            # set the session
+            if(userninfo is None):
+                #Send Email
+                already_otp= authMod.signup_otp_exist(email)
+                if already_otp:
+                    return {'messsage':'OTP already exist', 'otp': already_otp, 'code':3}, 200
+                value = random.randint(1001,9999)
+                #sending otp with email.
+                email_sent=authMod.new_user_send_mail(email,value)
+                if email_sent:
+                    print("Email Sended", value)
+                    authMod.signup_otp(email,value)
+                    return {'messsage':'Enter the OTP', 'otp': value, 'code':1}, 200
+                else:
+                    return {'messsage':'Something went wrong in server', 'code': 3}, 200  
+            else:
+                return {'messsage':'Email already Exist, try differnt email', 'code': 2}, 200 # user not found
+            
+
+    print("returning signup page")
+    return render_template('auth/signup.html')
+
+
+
+@app.route("/signupotpverify", methods=["POST"])
+def signupotpverify():
+    if request.method == "POST":
+        json_data = request.get_json(force = True)
+        email = json_data['email']
+        otp = json_data['otp']
+        username = json_data['username']
+        password = json_data['password']
+        validate= authMod.signup_verify_otp(email, otp)
+        if(validate):
+            #store new user
+            authMod.addNewUser(email, username, password)
+            return {'messsage':'Account created', 'code': 1}, 200
+        else:
+            return {'messsage':'wrong OTP Or the 2 min time limit Exceed', 'code': 2}, 200
+
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
@@ -66,10 +118,10 @@ def forgot_password():
             #Send Email
             already_otp= authMod.otp_exist(email)
             if already_otp:
-                return {'messsage':'OTP already exist', 'otp': already_otp, 'code':4}, 200
+                return {'messsage':'OTP already exist', 'otp': already_otp, 'code':3}, 200
             value = random.randint(1001,9999)
             #sending otp with email.
-            email_sent=authMod.send_mail(email,value)
+            email_sent=authMod.new_user_send_mail(email,value)
             if email_sent:
                 print("Email Sended", value)
                 authMod.otp(email,value)
@@ -81,6 +133,7 @@ def forgot_password():
    
     print("returning forgot Password page")
     return render_template('auth/forgotPassword.html')
+
 
 
 @app.route("/otpverify", methods=["POST"])
