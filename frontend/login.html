@@ -1,55 +1,76 @@
-{% extends "layout/base.html" %}
+<!-- {% extends "layout/base.html" %} -->
 
-{% block title %} login {% endblock %} 
+<!-- {% block title %} Login {% endblock %} -->
 
-{% block stylesheets %} <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.css" rel="stylesheet" /> {% endblock %} 
+<!-- {% block stylesheets %} -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.css" rel="stylesheet" />
+<!-- Add Bootstrap CSS link -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-{% block content %}
+<style>
+    body {
+        background: url("/home/chitransh/softwareLab/project/cs699ProjectSsl/frontend/3047867.jpg") center center fixed no-repeat;
+        background-size: cover;
+    }
 
-<section class="bg-gray-50 dark:bg-gray-900">
-    <div class="flex flex-col items-center justify-center h-screen">
-        <a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-            <img class="w-8 h-8 mr-2" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg" alt="logo">
-            ExpiryShield    
-        </a>
-        <div class="bg-white rounded-lg shadow dark:border sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-            <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-                <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                    Sign in to your account
-                </h1>
-                <form class="space-y-4 md:space-y-6" action="#">
-                    <div>
-                        <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
-                        <input id="email" type="email" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@company.com" required="">
+    /* Change text color to red */
+    .text-expiryshield {
+        color: silver;
+    }
+</style>
+<!-- {% endblock %} -->
+
+<!-- {% block content %} -->
+<section>
+<div class="container-fluid">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-md-6 col-lg-4">
+            <a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white text-expiryshield">
+                <img class="w-8 h-8 mr-2" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg" alt="logo">
+                ExpiryShield    
+            </a>    
+            <div class="card shadow-lg">
+                <div class="row no-gutters">
+                    <div class="col-md-6">
+                        <img src="/home/chitransh/softwareLab/project/cs699ProjectSsl/frontend/hand-pushing-virtual-security-button-on-digital-background-ECMD14.jpg" class="card-img img-fluid h-100" alt="Creative Image">
                     </div>
-                    <div>
-                        <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
-                        <input id="password" type="password" name="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="">
+                    <div class="col-md-6">
+                        <div class="card-body">
+                            <h1 class="h4 text-center mb-4">Sign in to your account</h1>
+                            <form>
+                                <div class="form-group">
+                                    <label for="email">Your email</label>
+                                    <input type="email" class="form-control" id="email" placeholder="name@company.com" required="">
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Password</label>
+                                    <input type="password" class="form-control" id="password" placeholder="••••••••" required="">
+                                </div>
+                                <div class="form-group">
+                                    <a href="/forgotpassword" class="small text-primary">Forgot password?</a>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-block" id="signin">Sign in</button>
+                                <p class="mt-3 small text-gray-500">Don’t have an account yet? <a href="#" class="text-primary">Sign up</a></p>
+                            </form>
+                        </div>
                     </div>
-                    <div class="flex items-center justify-between">
-    
-                        <a href="/forgotpassword" class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">Forgot password?</a>
-                    </div>
-                    <button id="signin" type="button" class=" w-full focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Sign in</button>    
-                    <p class="text-sm font-light text-gray-500 dark:text-gray-400">
-                        Don’t have an account yet? <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</a>
-                    </p>
-                </form>
+                </div>
             </div>
         </div>
     </div>
+</div>
 </section>
 
 <div id="toast-container" class="fixed top-0 right-0 p-4">
-    <!-- Toast notifications will be added here -->
- </div>
-{% endblock content %}
+<!-- Toast notifications will be added here -->
+</div>
+<!-- {% endblock content %} -->
 
-
-{% block javascripts %}
-
+<!-- {% block javascripts %} -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.js"></script>
 <script src="{{ url_for('static', filename='js/login.js')}}"></script>
-
-
-{% endblock javascripts %}
+<!-- Add Bootstrap JS and Popper.js scripts -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<!-- {% endblock javascripts %} -->
