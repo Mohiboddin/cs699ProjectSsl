@@ -27,6 +27,7 @@ app.config['MAIL_USE_SSL']=True
 
 mail=Mail(app)
 
+#inorder to avoid the circular import these files are imported here
 from app.auth import authCon
 from app.dashboard import dashCon
 from app.schedulerDir import schedulerScript
