@@ -15,7 +15,7 @@ def loginRequired(f):
 
     return wrap
 
-
+# here the function is supported by GET and POST request together. GET request will transfer the HTML pages
 @app.route("/signup", methods=["POST", "GET"])
 def signup():
 
