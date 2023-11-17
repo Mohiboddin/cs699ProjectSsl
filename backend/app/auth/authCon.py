@@ -4,7 +4,7 @@ from app.auth import authMod
 import random
 from functools import wraps
 
-
+#this function will prevent the unauthorized access to protected routes
 def loginRequired(f):
     @wraps(f)
     def wrap(*args, **kwargs):
@@ -135,7 +135,7 @@ def forgot_password():
     return render_template('auth/forgotPassword.html')
 
 
-
+#this will be used by AJAX
 @app.route("/otpverify", methods=["POST"])
 def verify_otp():
     if request.method == "POST":
