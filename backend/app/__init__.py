@@ -51,7 +51,7 @@ schedulerScript.schedulerScriptFunc2()
 #     scheduler.add_job(schedulerScriptFunc, IntervalTrigger(seconds=2))
 #     scheduler.start()
 
-
+#these are testing routes
 @app.route("/")
 def show_page():
    
