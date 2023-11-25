@@ -60,7 +60,7 @@ showToast("Email format is Incorrect", "error");
     return (false)
 }
 
-// display the messages.
+
 function showToast(message, type) {
     const toastContainer = document.getElementById("toast-container");
     const toast = document.createElement("div");

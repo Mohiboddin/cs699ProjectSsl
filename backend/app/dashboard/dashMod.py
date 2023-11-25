@@ -34,6 +34,24 @@ def certificateInfo(userId):
         print("An error occurred:", str(e))
         return None
 
+def onlycertificateInfo(userId):
+    try:
+        con = connect_db()
+        cur = con.cursor()
+        sql = """
+            SELECT url, created_at, updated_at, expire_mail_day, expire_date, status, problem_occurred, id
+            FROM certificate_info
+            WHERE created_by = %s
+        """
+        data={}
+        cur.execute(sql, (userId,))
+        data= cur.fetchall()
+        db_close(cur, con)
+        return data if data else None
+    except Exception as e:
+        print("An error occurred:", str(e))
+        return None
+
 def create_certificate_info(url, expire_mail_day, created_by, expire_date, status, problem_occurred):
     con = connect_db()
     cur = con.cursor()
@@ -43,11 +61,11 @@ def create_certificate_info(url, expire_mail_day, created_by, expire_date, statu
     db_close(cur, con)
     return certificate_id
 
-def update_certificate_info(id, expire_mail_day, expire_date, status, problem_occurred):
+def update_certificate_info(id, expire_date, status, problem_occurred):
     con = connect_db()
     cur = con.cursor()
-    sql = "UPDATE certificate_info SET updated_at=NOW(), expire_mail_day = %s, expire_date = %s, status = %s, problem_occurred = %s WHERE id = %s"
-    cur.execute(sql, (expire_mail_day, expire_date, status, problem_occurred, id))
+    sql = "UPDATE certificate_info SET updated_at=NOW(), expire_date = %s, status = %s, problem_occurred = %s WHERE id = %s"
+    cur.execute(sql, ( expire_date, status, problem_occurred, id))
     success = cur.rowcount > 0
     db_close(cur, con)
     return success

@@ -89,6 +89,7 @@ def certificate_info():
     
     if request.method == "PUT":
         json_data = request.get_json(force=True)
+        url=json_data.get('url')
         url_id = json_data.get('id')
         created_by = session['userId']
         certi_status = json_data.get('certi_status')
@@ -106,9 +107,9 @@ def certificate_info():
 
             else:
                 print ("URL problem")
-                return {'msg': 'Error fetching the certificate, certificate not present', 'code': 3}, 200  # url problem    
+                return {'msg': 'Error fetching the certificate, certificate not present', 'code': 2}, 200  # url problem    
 
-            success = dashMod.update_certificate_info(url_id, expire_mail_day, expire_date, status=True, problem_occurred=False)
+            success = dashMod.update_certificate_info(url_id, expire_date, status=True, problem_occurred=False)
             
             if success:
                 return {'msg': 'Certificate info updated successfully', 'code': 1}, 200  # OK
@@ -138,7 +139,7 @@ def certificate_info():
 
     if request.method == "GET":
        userID = session['userId']
-       certificateData=dashMod.certificateInfo(userID)
+       certificateData=dashMod.onlycertificateInfo(userID)
        if certificateData:
             return {'msg': certificateData, 'code': 1}, 200  # OK
        else:

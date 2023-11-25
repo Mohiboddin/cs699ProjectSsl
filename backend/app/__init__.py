@@ -55,7 +55,7 @@ def schedulerScriptFunc():
         print(f"Job ID: {job.id}, Next Run Time: {job.next_run_time}")
 
 if not scheduler.running:
-    scheduler.add_job(schedulerScriptFunc, 'cron', hour=00, minute=10)
+    scheduler.add_job(schedulerScriptFunc, 'cron', hour=4, minute=51)
     # 
     scheduler.start()
 

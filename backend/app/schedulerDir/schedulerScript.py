@@ -88,7 +88,7 @@ def sendEmailFunc(notifications):
                 msg.body= body_text
                 mail.send(msg)
                 updateCertificateInfo(url, email)
-                addMsg('Cant able to access the certificate for URL:', email, url)
+                addMsg(f'Cant able to access the certificate for URL:{url}', email, url)
             except smtplib.SMTPException as e:
                 updateCertificateInfo(url, email)
                 addMsg('cant sent invalid certificate email on given Email ID', email, url)
@@ -158,7 +158,7 @@ def updateCertificateInfo(url, email):
     try:
         conn = connect_db()
         cursor = conn.cursor()
-        sql = """UPDATE certificate_info SET status=FALSE, problem_occured =TRUE FROM appuser WHERE certificate_info.created_by = appuser.id AND appuser.email =%s AND certificate_info.url=%s;"""
+        sql = """UPDATE certificate_info SET status=FALSE, problem_occurred =TRUE FROM appuser WHERE certificate_info.created_by = appuser.id AND appuser.email =%s AND certificate_info.url=%s;"""
         cursor.execute(sql, (email,url))
         db_close(cursor, conn)
         return
