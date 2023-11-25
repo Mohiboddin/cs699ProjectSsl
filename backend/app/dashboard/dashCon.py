@@ -18,6 +18,23 @@ def dashboard():
         # Handle the case where no data is found
         return render_template('dashboard/dashboard3.html', data=None)
 
+
+
+@app.route("/notificationdelete", methods=["DELETE"])
+@loginRequired
+def notificationdelete():
+    if request.method == "DELETE":
+        json_data = request.get_json(force=True)
+        id = json_data.get('id')
+        #created_by = session['userId']
+        success = dashMod.delete_notification(id)
+
+        if success:
+            return {'msg': 'notification deleted successfully', 'code': 1}, 200  # OK
+        else:
+            return {'msg': 'Error deleting notification', 'code': 2}, 500  # Internal Server Error
+
+
 @app.route("/certificate_info", methods=["POST", "GET", "DELETE", "PUT"])
 @loginRequired
 def certificate_info():
@@ -72,39 +89,39 @@ def certificate_info():
     
     if request.method == "PUT":
         json_data = request.get_json(force=True)
-        url = json_data.get('url')
-        expire_mail_day = json_data.get('expire_mail_day')
+        url_id = json_data.get('id')
         created_by = session['userId']
-        ssl_date_str = dashMod.get_ssl_certificate_expiration(url)
-        if ssl_date_str:
-            ssl_date = datetime.strptime(ssl_date_str, "%b %d %H:%M:%S %Y GMT")
-            # Calculate the current date
-            current_date = datetime.now()
-            # Calculate the remaining days until the SSL date
-            remaining_days = (ssl_date - current_date).days
-            print(remaining_days)
-            # Check if the remaining days are less than 14
-            expire_date = ssl_date
+        certi_status = json_data.get('certi_status')
+        if not (certi_status):
+            ssl_date_str = dashMod.get_ssl_certificate_expiration(url)
+            if ssl_date_str:
+                ssl_date = datetime.strptime(ssl_date_str, "%b %d %H:%M:%S %Y GMT")
+                # Calculate the current date
+                current_date = datetime.now()
+                # Calculate the remaining days until the SSL date
+                remaining_days = (ssl_date - current_date).days
+                print(remaining_days)
+                # Check if the remaining days are less than 14
+                expire_date = ssl_date
 
-            if remaining_days<0:
-                certificate_id = dashMod.update_certificate_info(url, expire_mail_day, created_by, expire_date, status=True, problem_occurred=True)
-        
-                if certificate_id:
-                    return {'id': f'{certificate_id} certificate created but expired certificate', 'code': 1}, 200  # Created
-                else:
-                    return {'msg': 'Error creating certificate_info', 'code': 2}, 500  # Internal Server Error
+            else:
+                print ("URL problem")
+                return {'msg': 'Error fetching the certificate, certificate not present', 'code': 3}, 200  # url problem    
+
+            success = dashMod.update_certificate_info(url_id, expire_mail_day, expire_date, status=True, problem_occurred=False)
             
+            if success:
+                return {'msg': 'Certificate info updated successfully', 'code': 1}, 200  # OK
+            else:
+                return {'msg': 'Error updating certificate_info', 'code': 2}, 500  # Internal Server Error
+        else: 
+            updateNotifyBefore_val = json_data.get('updateNotifyBefore_val')
 
-        else:
-            print ("URL problem")
-            return {'msg': 'Error creating certificate_info Incorrect URL', 'code': 3}, 200  # url problem    
-
-        success = dashMod.update_certificate_info(url, expire_mail_day, created_by, expire_date, status=True, problem_occurred=True)
-        
-        if success:
-            return {'msg': 'Certificate info updated successfully', 'code': 1}, 200  # OK
-        else:
-            return {'msg': 'Error updating certificate_info', 'code': 2}, 500  # Internal Server Error
+            success = dashMod.update_certificate_info_days(url_id, updateNotifyBefore_val)
+            if success:
+                return {'msg': 'Certificate info updated successfully', 'code': 1}, 200  # OK
+            else:
+                return {'msg': 'Error updating certificate_info', 'code': 2}, 500  # Internal Server Error
 
 
 

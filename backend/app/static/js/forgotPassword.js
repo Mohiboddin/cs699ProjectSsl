@@ -13,6 +13,11 @@ document.getElementById("forgotPassword").addEventListener("click", function(eve
     }
     console.log(data)
     validate_email=ValidateEmail(email_val)
+
+    if ((!email_val)){
+        showToast("Fill all the fields properly", 'error');
+    }
+
     if (email_val && validate_email){
 
         // using Async and await

@@ -9,6 +9,12 @@ document.getElementById("change_password").addEventListener("click", function(ev
         "confirm_password": confirm_password_val
     }
     console.log(data)
+
+    if ((!password_val) || (!confirm_password_val)){
+        showToast("Fill all the fields properly", 'error');
+    }
+
+
     if(password_val===confirm_password_val)
     {
 

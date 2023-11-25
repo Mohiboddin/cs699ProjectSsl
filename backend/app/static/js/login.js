@@ -12,6 +12,10 @@ document.getElementById("signin").addEventListener("click", function(event){
 
     valid_email=ValidateEmail(email_val)
 
+    if ((!email_val) || (!password_val)){
+        showToast("Fill all the fields properly", 'error');
+    }
+
     if (email_val && password_val && valid_email){
 
         // using Async and await
@@ -40,6 +44,7 @@ document.getElementById("signin").addEventListener("click", function(event){
             });
 
 }
+
 
 });
 

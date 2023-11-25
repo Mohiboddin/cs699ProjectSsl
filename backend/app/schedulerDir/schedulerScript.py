@@ -1,4 +1,5 @@
 from app import mail
+from app import appcon
 from app.db import connect_db, db_close
 from datetime import datetime
 from flask_mail import Mail, Message
@@ -6,7 +7,7 @@ import bcrypt
 import ssl
 import socket
 import smtplib
-
+import time
 
 
 # certificate_info
@@ -17,6 +18,8 @@ import smtplib
 
 def schedulerScriptFunc2():
     print("Hello, World from inner function!")
+    current_datetime = datetime.now()
+    print("Hello from inner, Current Date and Time:", current_datetime)
     allWebsiteData=fetchAllWebsite()
     print(allWebsiteData)
     notifications=[]
@@ -43,12 +46,14 @@ def schedulerScriptFunc2():
                 print("Remaining days are not less than 14.")
         else:
             print ("URL problem")
-            notifications.append({'email':row['email'], 'url':row['url'], 'notificationCode':2, 'notificationMsg':"can't able to acess the certificate." })
+            notifications.append({'email':row['email'], 'url':row['url'], 'notificationCode':2, 'notificationMsg':"can't able to access the certificate." })
 
     sendEmailFunc(notifications)
 
 def sendEmailFunc(notifications):
+    appcon.push()
     print(notifications)
+    # with app.app_context():
     for row in notifications:
         #send expiry email.
         if row['notificationCode']==1:
@@ -56,8 +61,9 @@ def sendEmailFunc(notifications):
                 email=row['email']
                 url=row['url']
                 dayLeft=row['dayLeft']
-                print('sending email')
-                body_text= f'you need to update the SSL certificate for url: {url} within {dayLeft}'
+                print(f'sending email to {email}' )
+                body_text= f'you need to update the SSL certificate for url: {url} within {dayLeft} days.'
+                print(body_text)
                 msg=Message('SSL Alert', sender='mohibs2001@gmail.com', recipients=[email])
                 msg.body= body_text
                 mail.send(msg)
@@ -66,6 +72,9 @@ def sendEmailFunc(notifications):
             except smtplib.SMTPException as e:
                 #databse add msg
                 addMsg('cant sent Expiration email on given Email ID', email, url)
+            except Exception as e:
+                print("An error occurred:", str(e))
+    
         #cant access certificate email
         if row['notificationCode']==2:
             try:
@@ -73,6 +82,8 @@ def sendEmailFunc(notifications):
                 url=row['url']
                 print('sending email')
                 body_text= f'Cant able to access the certificate for URL: {url}'
+                print(f'sending email to {email}' )
+                print(body_text)
                 msg=Message('SSL Alert', sender='mohibs2001@gmail.com', recipients=[email])
                 msg.body= body_text
                 mail.send(msg)
@@ -81,7 +92,12 @@ def sendEmailFunc(notifications):
             except smtplib.SMTPException as e:
                 updateCertificateInfo(url, email)
                 addMsg('cant sent invalid certificate email on given Email ID', email, url)
+            except Exception as e:
+                print("An error occurred:", str(e))
+            time.sleep(3)
+    appcon.pop()
 
+    
 
 def get_ssl_certificate_expiration(url):
     try:
@@ -95,6 +111,10 @@ def get_ssl_certificate_expiration(url):
     except (ssl.SSLError, socket.error, KeyError):
         print("invalid url")
         return None
+    except Exception as e:
+        print("An error occurred:", str(e))
+    
+
     
 def fetchAllWebsite():
     try:
@@ -132,12 +152,14 @@ def fetchAllWebsite():
         print("An error occurred:", str(e))
         return None
 
+
+
 def updateCertificateInfo(url, email):
     try:
         conn = connect_db()
         cursor = conn.cursor()
-        sql = """UPDATE certificate_info SET problem_occured = TRUE WHERE url=%s AND email=%s;"""
-        cursor.execute(sql, (url ,email))
+        sql = """UPDATE certificate_info SET status=FALSE, problem_occured =TRUE FROM appuser WHERE certificate_info.created_by = appuser.id AND appuser.email =%s AND certificate_info.url=%s;"""
+        cursor.execute(sql, (email,url))
         db_close(cursor, conn)
         return
     except Exception as e:
@@ -159,5 +181,5 @@ def addMsg(msg, email, url):
         print("An error occurred:", str(e))
         return None
     
-schedulerScriptFunc2()
+# schedulerScriptFunc2()
 print("completed operation")

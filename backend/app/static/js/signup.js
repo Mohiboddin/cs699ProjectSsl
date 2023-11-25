@@ -12,8 +12,8 @@ document.getElementById("signup").addEventListener("click", function(event){
     }
     console.log(data)
 
-    if (!email_val && !password_val && !username_val){
-        showToast("Fill all the feilds properly", 'error');
+    if (!email_val || !password_val || !username_val){
+        showToast("Fill all the fields properly", 'error');
     }
 
     valid_email=ValidateEmail(email_val)
@@ -82,7 +82,7 @@ document.getElementById("signOtpEntered").addEventListener("click", function(eve
     console.log(data)
 
     if (!otp_val){
-        showToast("Fill all the feilds properly", 'error');
+        showToast("Fill all the fields properly", 'error');
     }
    
     validate_email=ValidateEmail(email_val)

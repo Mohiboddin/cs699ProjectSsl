@@ -27,31 +27,39 @@ app.config['MAIL_USE_SSL']=True
 
 mail=Mail(app)
 
-#inorder to avoid the circular import these files are imported here
+appcon=app.app_context()
+
 from app.auth import authCon
 from app.dashboard import dashCon
 from app.schedulerDir import schedulerScript
-schedulerScript.schedulerScriptFunc2()
-# scheduler = BackgroundScheduler()
-# x=0
-# def schedulerScriptFunc():
-#     # Get the current date and time
-#     current_datetime = datetime.datetime.now()
-#     global x
-#     print("Hello from main, Current Date and Time:", current_datetime, " ", x)
-#     schedulerScript.schedulerScriptFunc2()
-#     # Get the list of jobs
-#     jobs = scheduler.get_jobs()
-#     x=x+10
-#     # Print the list of jobs
-#     for job in jobs:
-#         print(f"Job ID: {job.id}, Next Run Time: {job.next_run_time}")
 
-# if not scheduler.running:
-#     scheduler.add_job(schedulerScriptFunc, IntervalTrigger(seconds=2))
-#     scheduler.start()
+# app.app_context().push()
+# app.app_context().pop()
 
-#these are testing routes
+scheduler = BackgroundScheduler()
+
+# scheduler.add_job(scheduled_job, 'cron', hour=14, minute=23)
+# scheduler.start()
+x=0
+def schedulerScriptFunc():
+    # Get the current date and time
+    current_datetime = datetime.datetime.now()
+    global x
+    print("Hello from main, Current Date and Time:", current_datetime, " ", x)
+    schedulerScript.schedulerScriptFunc2()
+    # Get the list of jobs
+    jobs = scheduler.get_jobs()
+    x=x+10
+    # Print the list of jobs
+    for job in jobs:
+        print(f"Job ID: {job.id}, Next Run Time: {job.next_run_time}")
+
+if not scheduler.running:
+    scheduler.add_job(schedulerScriptFunc, 'cron', hour=00, minute=10)
+    # 
+    scheduler.start()
+
+
 @app.route("/")
 def show_page():
    

@@ -114,6 +114,65 @@ document.getElementById("deleteURLButton").addEventListener("click", function(ev
 
 
 
+
+//delete message feature
+// Add a click event listener to all elements with the "delete" class
+const deleteMessageButtons = document.querySelectorAll('.deletemessage');
+
+deleteMessageButtons.forEach((button) => {
+  button.addEventListener('click', (event) => {
+    event.preventDefault(); // Prevent the default link behavior
+
+    // Retrieve the value associated with the clicked row
+    value = button.getAttribute('data-value');
+     row = button.closest('tr');
+     
+
+    // Now, you can use the 'value' in your JavaScript function or pass it to an API, etc.
+    console.log('Value:', value);
+     
+    data={
+        "id": value,
+    
+    }
+
+    // using Async and await
+        
+
+    fetch('/notificationdelete', {
+        method: 'DELETE', // or 'PUT'
+        headers: {
+        "content-type": "application/json ;charset=utf-8",
+        },
+        body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+        console.log('Success:', data);
+        if(data["code"]==1)
+            {
+                showToast(data["msg"], "success");
+                if (row) {
+                    row.remove();
+                  }
+
+            }
+        else if(data["code"]==2)
+        {
+            showToast(data["msg"], "error");
+        }
+        })
+        .catch((error) => {
+        console.error('Error:', error);
+        });
+
+
+
+
+     
+  });
+});
+
 //---------------------------------------------------------------
 
 
@@ -121,7 +180,8 @@ document.getElementById("deleteURLButton").addEventListener("click", function(ev
 //---------------------------------------------------------
 
 let editrow;
-const rowData = [];
+rowData = [];
+certi_status=false;
 
 // Add a click event listener to all elements with the "delete" class
 const updateButtons = document.querySelectorAll('.edit');
@@ -139,7 +199,7 @@ updateButtons.forEach((button) => {
     if (editrow) {
         // Capture all the values in the row
         const cells = editrow.querySelectorAll('td');
-
+        rowData=[]
         cells.forEach((cell) => {
           rowData.push(cell.textContent);
         });
@@ -152,14 +212,14 @@ updateButtons.forEach((button) => {
     if (rowData[5].toLowerCase() === 'false') {
         // If the value in rowData[5] is 'false', hide the "noCerti" div
         const noCertiDiv = document.getElementById('noCertiIssue');
-      
+        certi_status=false;
         if (noCertiDiv) {
           noCertiDiv.style.display = 'none';
         }
       }
       else{
         const noCertiDiv = document.getElementById('certiIssue');
-      
+        certi_status=true;
         if (noCertiDiv) {
           noCertiDiv.style.display = 'none';
         }
@@ -172,22 +232,44 @@ updateButtons.forEach((button) => {
 
 
 
-document.getElementById("deleteURLButton").addEventListener("click", function(event){
+document.getElementById("updateUrlModal").addEventListener("click", function(event){
+    
     event.preventDefault()
-    console.log("new url request")
-    var delURLVal= value
-    data={
-        "id": delURLVal,
+    console.log("update url request")
+    var updateURLVal= storedValue
+
+    if(certi_status==false){
+        data={
+            "id": updateURLVal,
+            "certi_status": certi_status
+            
+        }
     }
+    else{
+        var updateNotifyBefore_val= document.getElementById("updateNotifyBefore").value
+        if (updateNotifyBefore_val <= 1) {
+            showToast("Notify before value should be greater then  1", "error");
+            console.log("updateNotifyBefore should be greater than 1");
+            return;  // This will exit the function without returning a value
+        }
+        
+        data={
+            "id": updateURLVal,
+            "certi_status": certi_status,
+            "updateNotifyBefore_val": updateNotifyBefore_val
+            
+        }
+    }
+
     console.log(data)
 
-    if (delURLVal ){
+    if (updateURLVal ){
 
         // using Async and await
         
-
+            savedrow= editrow;
             fetch('/certificate_info', {
-            method: 'DELETE', // or 'PUT'
+            method: 'PUT', // or 'PUT'
             headers: {
             "content-type": "application/json ;charset=utf-8",
             },
@@ -199,15 +281,21 @@ document.getElementById("deleteURLButton").addEventListener("click", function(ev
             if(data["code"]==1)
                 {
                     showToast(data["msg"], "success");
-                    if (row) {
-                        row.remove();
+                    if (savedrow) {
+                        console.log(savedrow.cells[3].textContent);
+                        savedrow.cells[3].textContent = updateNotifyBefore_val;
+                      }
+                      if (certi_status==false)
+                      {
+                        savedrow.cells[5].textContent = "Ture";
                       }
 
                 }
-            else if(data["code"]==2)
+            else if(data["code"]==2 || data["code"]==3)
             {
                 showToast(data["msg"], "error");
             }
+            
             })
             .catch((error) => {
             console.error('Error:', error);
